@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Syne:wght@400..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --background-image-hero: url('/assets/images/photo-3.webp');
+  --font-jost:  "Jost", sans-serif;
+  --font-syne: "Syne", sans-serif;
+  --color-primary: #943E25;
+  --color-secondary: #E8CDA6;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 15s linear infinite;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+}
