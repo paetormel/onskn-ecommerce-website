@@ -3,13 +3,13 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 const MainLayout = lazy(() => import("./layouts/mainLayout"));
 const ProductsLayout = lazy(() => import("./layouts/productsLayout"));
-const Home = lazy(() => import("./routes/home"));
-const About = lazy(() => import("./routes/about"));
-const Products = lazy(() => import("./routes/products"));
+const Home = lazy(() => import("./pages/home"));
+const About = lazy(() => import("./pages/about"));
+const Products = lazy(() => import("./pages/products"));
 const ProductDetails = lazy(() => import("./features/product_details/ProductDetails"));
-const Shop = lazy(() => import("./routes/shop"));
-const Login = lazy(() => import("./routes/login"));
-const Signup = lazy(() => import("./routes/signup"));
+const Shop = lazy(() => import("./pages/shop"));
+const Login = lazy(() => import("./pages/login"));
+const Signup = lazy(() => import("./pages/signup"));
 
 function withSuspense(node: ReactNode) {
   return <Suspense fallback={null}>{node}</Suspense>;
