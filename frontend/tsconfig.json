@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./*"]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
