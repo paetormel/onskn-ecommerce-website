@@ -11,7 +11,7 @@ const ProductsLayout = lazy(
 const Home = lazy(() => import("../../features/home/home"));
 const About = lazy(() => import("../../features/about/about"));
 const Products = lazy(() => import("../../features/products/products"));
-const AdminDashboard = lazy(() => import("../../features/admin-dashboard/pages/dashboard"))
+const AdminDashboard = lazy(() => import("../../features/admin-dashboard/pages/Dashboard"))
 const ProductDetails = lazy(
   () => import("../../features/products/components/ProductView")
 );
