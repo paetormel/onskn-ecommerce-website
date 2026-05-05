@@ -2,6 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import routes from "./routes.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -51,6 +52,8 @@ app.use(
     strict: true,
   })
 );
+
+app.use(cookieParser()); // 🔥 MUST BE BEFORE ROUTES
 
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });

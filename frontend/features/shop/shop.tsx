@@ -13,6 +13,9 @@ const shopProductCards = Array.from({ length: 6 }, (_, index) => ({
   id: `shop-product-${index + 1}`,
   primaryImage: Product1,
   hoverImage: Product1Image,
+  name: `ONSKN Product ${index + 1}`,
+  price: 37 + index,
+  sizeLabel: "120ml",
 }));
 
 export default function Shop() {
@@ -72,6 +75,9 @@ export default function Shop() {
                 key={product.id}
                 primaryImage={product.primaryImage}
                 hoverImage={product.hoverImage}
+                name={product.name}
+                price={product.price}
+                sizeLabel={product.sizeLabel}
               />
             ))}
           </div>

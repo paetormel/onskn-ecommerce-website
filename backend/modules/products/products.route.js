@@ -1,18 +1,15 @@
 import express from 'express';
+import upload from '../../middlewares/multer.middleware.js';
 import {
+    createFullProduct,
     getProducts,
-    getProductById,
-    createProduct,
-    updateProduct,
-    deleteProduct,
+    getProductById
 } from './products.controller.js';
 
 const router = express.Router();
 
 router.get('/', getProducts);
 router.get('/:id', getProductById);
-router.post('/', createProduct);
-router.put('/:id', updateProduct);
-router.delete('/:id', deleteProduct);
+router.post('/', upload.array('images', 5), createFullProduct);
 
 export default router;

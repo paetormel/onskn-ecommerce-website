@@ -1,5 +1,5 @@
 import { uploadToCloudinary } from './upload.service.js';
-import db from '../../config/db.js';
+import { query } from '../../config/db.js';
 
 export const uploadImages = async (req, res) => {
     try {
@@ -28,7 +28,7 @@ export const uploadImages = async (req, res) => {
         const inserted = [];
 
         for (const img of uploads) {
-            const result = await db.query(
+            const result = await query(
                 `INSERT INTO product_images (product_id, url, public_id)
                  VALUES ($1, $2, $3)
                  RETURNING *`,

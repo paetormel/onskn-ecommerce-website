@@ -1,14 +1,20 @@
 import { Suspense, lazy, type ReactNode } from "react";
 import { createBrowserRouter } from "react-router-dom";
+import PublicRoute from "~/shared/routes/PublicRoute";
 
-const MainLayout = lazy(() => import("../../shared/components/layouts/mainLayout"));
-const ProductsLayout = lazy(() =>
-  import("../../shared/components/layouts/productsLayout")
+const MainLayout = lazy(
+  () => import("../../shared/components/layouts/mainLayout")
+);
+const ProductsLayout = lazy(
+  () => import("../../shared/components/layouts/productsLayout")
 );
 const Home = lazy(() => import("../../features/home/home"));
 const About = lazy(() => import("../../features/about/about"));
-const Products = lazy(() => import("../../shared/components/products"));
-const ProductDetails = lazy(() => import("../../features/products/components/ProductView"));
+const Products = lazy(() => import("../../features/products/products"));
+const AdminDashboard = lazy(() => import("../../features/admin-dashboard/pages/dashboard"))
+const ProductDetails = lazy(
+  () => import("../../features/products/components/ProductView")
+);
 const Shop = lazy(() => import("../../features/shop/shop"));
 const Login = lazy(() => import("../../features/auth/login"));
 const Signup = lazy(() => import("../../features/auth/signup"));
@@ -20,11 +26,19 @@ function withSuspense(node: ReactNode) {
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: withSuspense(<Login />),
+    element: withSuspense(
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
     path: "/signup",
-    element: withSuspense(<Signup />),
+    element: withSuspense(
+      <PublicRoute>
+        <Signup />
+      </PublicRoute>
+    ),
   },
   {
     element: withSuspense(<MainLayout />),
@@ -57,4 +71,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  {
+    element: withSuspense(<AdminDashboard />),
+    path: "/admin",
+
+  }
 ]);

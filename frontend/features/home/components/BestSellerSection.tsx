@@ -13,6 +13,9 @@ const bestSellerProducts = Array.from({ length: 5 }, (_, index) => ({
   id: `best-seller-${index + 1}`,
   primaryImage: BestSellerPrimaryImage,
   hoverImage: BestSellerHoverImage,
+  name: `Best Seller ${index + 1}`,
+  price: 42 + index,
+  sizeLabel: "120ml",
 }));
 
 function BestSellerSection() {
@@ -43,6 +46,9 @@ function BestSellerSection() {
             key={product.id}
             primaryImage={product.primaryImage}
             hoverImage={product.hoverImage}
+            name={product.name}
+            price={product.price}
+            sizeLabel={product.sizeLabel}
           />
         ))}
       </div>

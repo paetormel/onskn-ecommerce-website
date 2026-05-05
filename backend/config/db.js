@@ -5,17 +5,19 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const {
+  DATABASE_URL,
+  NODE_ENV = "development",
+  DB_SSL = "false",
+  DB_POOL_MAX = "20",
+  DB_IDLE_TIMEOUT_MS = "30000",
+  DB_CONNECTION_TIMEOUT_MS = "20000",
+} = process.env;
 
 if (!DATABASE_URL) {
-  throw new Error("Missing required environment variable: DATABASE_URL");
+  throw new Error("Missing DATABASE_URL");
 }
 
-const NODE_ENV = process.env.NODE_ENV ?? "development";
-const DB_SSL = process.env.DB_SSL ?? "false";
-
-// local/dev default: no ssl
-// production can opt in with DB_SSL=true
 const ssl =
   DB_SSL === "true"
     ? { rejectUnauthorized: false }
@@ -23,54 +25,44 @@ const ssl =
 
 export const pool = new Pool({
   connectionString: DATABASE_URL,
-  max: Number(process.env.DB_POOL_MAX ?? 20),
-  idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 30000),
-  connectionTimeoutMillis: Number(process.env.DB_CONNECTION_TIMEOUT_MS ?? 20000),
+  max: Number(DB_POOL_MAX),
+  idleTimeoutMillis: Number(DB_IDLE_TIMEOUT_MS),
+  connectionTimeoutMillis: Number(DB_CONNECTION_TIMEOUT_MS),
   ssl,
 });
 
+/**
+ * Logs
+ */
 pool.on("connect", () => {
-  console.log("[db] New PostgreSQL client connected");
+  console.log("[db] connected");
 });
 
 pool.on("error", (err) => {
-  console.error("[db] Unexpected PostgreSQL pool error", {
+  console.error("[db] pool error", {
     message: err.message,
-    stack: err.stack,
+    code: err.code,
   });
 });
 
-export async function connectDB() {
-  try {
-    await pool.query("SELECT 1");
-    console.log("[db] Database connectivity check passed");
-  } catch (error) {
-    console.error("[db] Database connectivity check failed", {
-      message: error.message,
-      stack: error.stack,
-    });
-    throw error;
-  }
-}
-
+/**
+ * Basic query wrapper
+ */
 export async function query(text, params = []) {
   const start = Date.now();
 
   try {
     const result = await pool.query(text, params);
-    const duration = Date.now() - start;
 
-    console.log("[db] Query executed", {
-      duration,
+    console.log("[db] query", {
+      duration: Date.now() - start,
       rows: result.rowCount,
     });
 
     return result;
   } catch (error) {
-    const duration = Date.now() - start;
-
-    console.error("[db] Query failed", {
-      duration,
+    console.error("[db] query error", {
+      duration: Date.now() - start,
       message: error.message,
       code: error.code,
     });
@@ -79,15 +71,45 @@ export async function query(text, params = []) {
   }
 }
 
-export async function closeDB() {
+/**
+ * Transaction helper (GOD TIER)
+ */
+export async function withTransaction(callback) {
+  const client = await pool.connect();
+
   try {
-    await pool.end();
-    console.log("[db] PostgreSQL pool closed");
+    await client.query("BEGIN");
+
+    const result = await callback(client);
+
+    await client.query("COMMIT");
+
+    return result;
   } catch (error) {
-    console.error("[db] Failed to close PostgreSQL pool", {
-      message: error.message,
-      stack: error.stack,
-    });
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Health check
+ */
+export async function connectDB() {
+  try {
+    await query("SELECT 1");
+    console.log("[db] health check ok");
+  } catch (error) {
+    console.error("[db] health check failed", error);
     throw error;
   }
+}
+
+/**
+ * Graceful shutdown
+ */
+export async function closeDB() {
+  await pool.end();
+  console.log("[db] pool closed");
 }
