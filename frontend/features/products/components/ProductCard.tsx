@@ -7,8 +7,6 @@ import type { ProductCardProps } from "../types/product.types";
 import { useNavigate } from "react-router-dom";
 import type { KeyboardEvent } from "react";
 
-const PRODUCT_ALT = "ONSKIN Product";
-const PRODUCT_HOVER_ALT = "ONSKIN Product Hover";
 const SELECT_LABEL = "Select";
 
 function ProductCard({
@@ -17,11 +15,14 @@ function ProductCard({
   productId,
   name,
   price,
+  compareAtPrice,
   sizeLabel,
 }: ProductCardProps) {
   const navigate = useNavigate();
   const isClickable = Boolean(productId);
 
+
+  
   const handleCardClick = () => {
     if (!productId) return;
     navigate(`/products/${productId}`);
@@ -43,10 +44,10 @@ function ProductCard({
       role={isClickable ? "link" : undefined}
       tabIndex={isClickable ? 0 : undefined}
     >
-      <div className="relative h-[580px] w-full overflow-hidden bg-white md:min-w-100">
-        <ProductMainImage src={primaryImage} alt={PRODUCT_ALT} />
+      <div className="relative h-145 w-full overflow-hidden bg-white md:min-w-100">
+        <ProductMainImage src={primaryImage} alt={`${name} MAIN`} />
 
-        <ProductHoverImage src={hoverImage} alt={PRODUCT_HOVER_ALT} />
+        <ProductHoverImage src={hoverImage} alt={`${name} HOVER`} />
 
         <SelectButton
           className="hidden md:block absolute bottom-0 left-0 w-full translate-y-full bg-primary py-3 font-jost font-medium text-white transition-all duration-300 group-hover:translate-y-0 hover:bg-black"
@@ -55,7 +56,7 @@ function ProductCard({
         />
       </div>
 
-      <ProductDetails name={name} price={`$${price.toFixed(2)}`} size={sizeLabel ?? "100ml"} />
+      <ProductDetails name={name} price={price} compareAtPrice={compareAtPrice} size={sizeLabel ?? "100ml"} />
 
       <SelectButton
         className="block w-full cursor-pointer bg-black py-3 font-jost font-medium text-white transition-all duration-300 lg:hidden"

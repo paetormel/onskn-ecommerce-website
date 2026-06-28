@@ -1,6 +1,5 @@
-import axios from "axios";
+import { api } from "~/shared/lib/axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 export type LoginPayload = {
   email: string;
@@ -15,11 +14,21 @@ export type RegisterPayload = {
 };
 
 export async function loginRequest(payload: LoginPayload) {
-  const response = await axios.post(`${API_BASE_URL}/v1/auth/login`, payload);
+  const response = await api.post(`/auth/login`, payload);
   return response.data;
 }
 
+export async function logoutRequest() {
+  return await api.post('/auth/logout')
+}
+
 export async function registerRequest(payload: RegisterPayload) {
-  const response = await axios.post(`${API_BASE_URL}/v1/auth/register`, payload);
+  const response = await api.post(`/auth/register`, payload);
   return response.data;
 }
+
+export const authMe = async () => {
+  const response = await api.get("/auth/me");
+
+  return response.data;
+};

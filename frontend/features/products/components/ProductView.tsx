@@ -16,7 +16,7 @@ const PRODUCT_IMAGES = [
 
 const ProductView = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
-
+  
   const handlePrev = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? PRODUCT_IMAGES.length - 1 : prevIndex - 1

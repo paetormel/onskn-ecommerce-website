@@ -6,6 +6,7 @@ import SocialGrid from "~/features/home/components/SocialGrid";
 import Feature1 from "../../assets/images/Feature1.webp";
 import Feature2 from "../../assets/images/Feature2.webp";
 import { easeOut, motion } from "motion/react";
+import { Helmet } from "react-helmet-async";
 
 const titleClass =
   "mb-3 text-[37px] font-medium leading-9 md:text-[45px] md:leading-12";
@@ -93,21 +94,39 @@ function Content2() {
  */
 export default function Home() {
   return (
-    <main className="flex flex-col">
-      <HomeHero />
-      <BestSellerSection />
-      <ProductFeature
-        content={<Content1 />}
-        image={Feature1}
-        titleId="product-feature-1-title"
-      />
-      <Testimonials />
-      <ProductFeature
-        content={<Content2 />}
-        image={Feature2}
-        titleId="product-feature-2-title"
-      />
-      <SocialGrid />
-    </main>
+    <>
+      {/* <Helmet>
+        <title>My Store</title>
+
+        <meta name="description" content="Best ecommerce store" />
+
+        <meta property="og:title" content="My Store" />
+
+        <meta property="og:description" content="Buy products online" />
+
+        <meta property="og:image" content="/banner.png" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <link rel="canonical" href="https://mystore.com" />
+      </Helmet> */}
+
+      <main className="flex flex-col">
+        <HomeHero />
+        <BestSellerSection />
+        <ProductFeature
+          content={<Content1 />}
+          image={Feature1}
+          titleId="product-feature-1-title"
+        />
+        <Testimonials />
+        <ProductFeature
+          content={<Content2 />}
+          image={Feature2}
+          titleId="product-feature-2-title"
+        />
+        <SocialGrid />
+      </main>
+    </>
   );
 }
