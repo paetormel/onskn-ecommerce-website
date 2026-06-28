@@ -5,6 +5,7 @@ import type { ProductRecord } from "~/features/products/types/product.types";
 function normalizeProduct(product: ProductRecord): ProductRecord {
   return {
     id: product.id,
+    slug: product.slug,
     name: product.name,
     isActive: product.isActive,
     price: Number(product.price ?? 0),
@@ -23,7 +24,7 @@ export function useProducts() {
     queryKey: ["products"],
     queryFn: async () => {
       const res = await fetchProducts();
-      return res.map(normalizeProduct);
+      return (res ?? []).map(normalizeProduct);
     },
     staleTime: 1000 * 60 * 5,
   });

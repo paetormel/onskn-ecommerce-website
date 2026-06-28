@@ -8,9 +8,11 @@ import {
   signupSchema,
   type SignupFormData,
 } from "~/features/auth/validation/authSchemas";
+import { useGoogleAuth } from "~/shared/hooks/useGoogleAuth";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const googleAuth = useGoogleAuth();
   const {
     register,
     handleSubmit,
@@ -43,6 +45,18 @@ export default function Signup() {
   const onSubmit = (data: SignupFormData) => {
     signup(data);
   };
+
+  const handleGoogleCredential = (credential: string) => {
+    googleAuth.mutate(
+      { credential },
+      {
+        onSuccess: () => {
+          navigate("/", { replace: true });
+        },
+      }
+    );
+  };
+
   if (isError) return <p>Error: {error.message}</p>;
 
   if (isPending) return <p>Loading...</p>;
@@ -165,6 +179,9 @@ export default function Signup() {
         <AuthSecondaryActions
           promptText="Already have an account?"
           linkText="Sign in"
+          linkTo="/login"
+          onGoogleCredential={handleGoogleCredential}
+          googleDisabled={googleAuth.isPending}
         />
       </section>
     </main>

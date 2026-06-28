@@ -29,6 +29,7 @@ export const env = cleanEnv(process.env, {
 
   JWT_SECRET: str({ devDefault: "dev-jwt-secret-change-in-production" }),
   JWT_EXPIRES_IN: str({ default: "15m" }),
+  GOOGLE_CLIENT_ID: str({ default: "" }),
 
   CLOUDINARY_NAME: str({ default: "" }),
   CLOUDINARY_KEY: str({ default: "" }),

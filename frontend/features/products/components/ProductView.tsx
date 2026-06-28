@@ -1,31 +1,64 @@
-import { Link } from "react-router-dom";
-import Gallery1 from "../../../assets/images/gallery-1.jpeg";
-import Gallery2 from "../../../assets/images/gallery-2.webp";
-import Gallery3 from "../../../assets/images/gallery-3.jpg";
-import Gallery4 from "../../../assets/images/gallery-4.jpg";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { useState } from "react";
 import Accordion from "~/features/navbar/Accordian";
-
-const PRODUCT_IMAGES = [
-  { src: Gallery1, alt: "Even ONSKN Serum front view" },
-  { src: Gallery2, alt: "Even ONSKN Serum side view" },
-  { src: Gallery3, alt: "Even ONSKN Serum packaging" },
-  { src: Gallery4, alt: "Even ONSKN Serum lifestyle shot" },
-];
+import Loading from "~/shared/components/loading/loading";
+import { useProduct } from "~/shared/hooks/useProduct";
+import {
+  formatSectionTitle,
+  getProductDisplayImages,
+} from "~/features/products/api/productsApi";
 
 const ProductView = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(1);
-  
+  const { slug } = useParams<{ slug: string }>();
+  const { data: product, isLoading, isError, error } = useProduct(slug);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
+  const displayImages = useMemo(
+    () => (product ? getProductDisplayImages(product) : []),
+    [product]
+  );
+
+  useEffect(() => {
+    setCurrentImageIndex(0);
+    setQuantity(1);
+    setShowFullDescription(false);
+  }, [product?.id]);
+
+  const variant = product?.variants[0];
+  const price = variant?.price ?? 0;
+  const compareAtPrice = variant?.compareAtPrice ?? null;
+  const sizeLabel = variant?.sizeLabel ?? "100ml";
+  const recommendedFor =
+    product?.skinTypes.length ? product.skinTypes.join(", ") : "All skin types.";
+  const skinConcern =
+    product?.texture?.trim() || product?.category.name || "N/A";
+
+  const accordionSections = useMemo(
+    () =>
+      product?.sections.map((section) => ({
+        id: section.id,
+        title: formatSectionTitle(section.type, section.title),
+        content: section.content,
+      })) ?? [],
+    [product]
+  );
+
+  const currentImage = displayImages[currentImageIndex];
+
   const handlePrev = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? PRODUCT_IMAGES.length - 1 : prevIndex - 1
+    if (displayImages.length === 0) return;
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? displayImages.length - 1 : prev - 1
     );
   };
 
   const handleNext = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === PRODUCT_IMAGES.length - 1 ? 0 : prevIndex + 1
+    if (displayImages.length === 0) return;
+    setCurrentImageIndex((prev) =>
+      prev === displayImages.length - 1 ? 0 : prev + 1
     );
   };
 
@@ -33,9 +66,36 @@ const ProductView = () => {
     setCurrentImageIndex(index);
   };
 
+  if (isLoading) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center px-5 py-12 font-jost">
+        <Loading />
+      </main>
+    );
+  }
+
+  if (isError || !product) {
+    return (
+      <main className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-5 py-12 font-jost">
+        <p className="text-sm text-red-500">
+          {error instanceof Error ? error.message : "Failed to load product"}
+        </p>
+        <Link to="/products" className="text-sm underline">
+          Back to products
+        </Link>
+      </main>
+    );
+  }
+
+  const description = product.baseDescription.trim();
+  const shortDescription =
+    description.length > 180 && !showFullDescription
+      ? `${description.slice(0, 180)}...`
+      : description;
+
   return (
-    <main className="flex flex-col gap-8 px-5 md:px-12 py-12 font-jost">
-      <nav aria-label="Breadcrumb" className="mt-5 md:mt-20 text-xs text-black">
+    <main className="flex flex-col gap-8 px-5 py-12 font-jost md:px-12">
+      <nav aria-label="Breadcrumb" className="mt-5 text-xs text-black md:mt-20">
         <ol className="flex items-center gap-1">
           <li>
             <Link to="/">Home</Link>
@@ -46,124 +106,160 @@ const ProductView = () => {
           </li>
           <li aria-hidden="true">/</li>
           <li className="text-gray-400" aria-current="page">
-            Product
+            {product.name}
           </li>
         </ol>
       </nav>
 
       <section
         aria-labelledby="product-title"
-        className="grid gap-8 md:gap-25 md:grid-cols-2"
+        className="grid gap-8 md:grid-cols-2 md:gap-25"
       >
-        {/* IMAGE DETAILES */}
-        <div className="hidden max-h-full md:block flex-1">
+        <div className="hidden max-h-full flex-1 md:block">
           <div className="relative">
-            <img
-              src={PRODUCT_IMAGES[currentImageIndex].src}
-              alt={PRODUCT_IMAGES[currentImageIndex].alt}
-              decoding="async"
-              fetchPriority="high"
-              className="w-full h-[700px] object-cover"
-            />
+            {currentImage ? (
+              <img
+                src={currentImage.src}
+                alt={currentImage.alt}
+                decoding="async"
+                fetchPriority="high"
+                className="h-[700px] w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-[700px] w-full items-center justify-center bg-gray-100 text-sm text-gray-400">
+                No image available
+              </div>
+            )}
 
-            <button
-              className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white p-2 hover:bg-black hover:text-white transition-colors duration-200"
-              onClick={handlePrev}
-            >
-              <MdKeyboardArrowLeft size={20} className="cursor-pointer" />
-            </button>
-            <button
-              className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white p-2 hover:bg-black hover:text-white transition-colors duration-200"
-              onClick={handleNext}
-            >
-              <MdKeyboardArrowRight size={20} className="cursor-pointer " />
-            </button>
+            {displayImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 transform bg-white p-2 transition-colors duration-200 hover:bg-black hover:text-white"
+                  onClick={handlePrev}
+                  aria-label="Previous image"
+                >
+                  <MdKeyboardArrowLeft size={20} className="cursor-pointer" />
+                </button>
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 transform bg-white p-2 transition-colors duration-200 hover:bg-black hover:text-white"
+                  onClick={handleNext}
+                  aria-label="Next image"
+                >
+                  <MdKeyboardArrowRight size={20} className="cursor-pointer" />
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="w-full  flex gap-2 mt-2">
-            {PRODUCT_IMAGES.map((image, index) => (
+          <div className="flex min-w-full gap-2">
+            {displayImages.map((image, index) => (
               <img
-                key={index}
+                key={`${image.src}-${index}`}
                 src={image.src}
                 alt={image.alt}
                 loading="lazy"
                 decoding="async"
-                className={`${
+                className={`mt-4 hidden h-40 min-w-35 flex-1 cursor-pointer object-cover md:inline-block ${
                   index === currentImageIndex ? "border border-black" : ""
-                } hidden flex-1 h-40 w-40 object-cover mt-4 cursor-pointer md:inline-block`}
+                }`}
                 onClick={() => handlePickImage(index)}
               />
             ))}
           </div>
         </div>
 
-        <div className="block md:hidden -mx-5 overflow-x-auto px-5 touch-pan-x md:mx-0 md:overflow-visible md:px-0">
-          <ul className="flex gap-4 snap-x snap-mandatory md:grid md:grid-cols-2 md:snap-none">
-            {PRODUCT_IMAGES.map((image, index) => (
+        <div className="block -mx-5 overflow-x-auto px-5 touch-pan-x md:mx-0 md:hidden md:overflow-visible md:px-0">
+          <div className="relative mb-4">
+            {currentImage ? (
+              <img
+                src={currentImage.src}
+                alt={currentImage.alt}
+                decoding="async"
+                fetchPriority="high"
+                className="h-100 w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-100 w-full items-center justify-center bg-gray-100 text-sm text-gray-400">
+                No image available
+              </div>
+            )}
+          </div>
+
+          <ul className="flex snap-x snap-mandatory gap-4">
+            {displayImages.map((image, index) => (
               <li
-                key={index}
-                className="w-[78vw] flex-none snap-start sm:w-[62vw] md:w-auto"
+                key={`${image.src}-${index}`}
+                className="w-[78vw] flex-none snap-start sm:w-[62vw]"
               >
                 <img
                   src={image.src}
                   alt={image.alt}
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
-                  className="h-100 w-full object-cover md:h-70"
+                  className={`h-100 w-full cursor-pointer object-cover ${
+                    index === currentImageIndex ? "border border-black" : ""
+                  }`}
+                  onClick={() => handlePickImage(index)}
                 />
               </li>
             ))}
           </ul>
         </div>
 
-        {/* PRODUCT DETAILS */}
         <article className="flex flex-col gap-5 pr-45">
           <header className="flex flex-col gap-2">
             <h1
               id="product-title"
-              className="text-2xl md:text-3xl uppercase font-jost font-medium"
+              className="font-jost text-2xl font-medium uppercase md:text-3xl"
             >
-              Even ONSKN Serum
+              {product.name}
             </h1>
 
             <p className="text-xl">
-              <span className="font-medium">$44.00</span>{" "}
-              <span className="text-gray-400 line-through">$53.00</span>
+              <span className="font-medium">${price.toFixed(2)}</span>{" "}
+              {compareAtPrice != null && compareAtPrice > price && (
+                <span className="text-gray-400 line-through">
+                  ${compareAtPrice.toFixed(2)}
+                </span>
+              )}
             </p>
           </header>
-          <div className="flex flex-col md:text-[16px] leading-5 text-gray-400 font-jost gap-2">
-            <p>
-              This lightweight serum delivers a luminous glow while gently
-              brightening and evening out skin tone. Designed to complement the
-              unique needs of melanated skin, it visibly reduces pigmentation.
-            </p>
 
-            <button type="button" className="w-fit text-sm underline">
-              Show more
-            </button>
+          <div className="flex flex-col gap-2 font-jost leading-5 text-gray-400 md:text-[16px]">
+            <p>{shortDescription || "No description available."}</p>
+
+            {description.length > 180 && (
+              <button
+                type="button"
+                className="w-fit text-sm underline"
+                onClick={() => setShowFullDescription((prev) => !prev)}
+              >
+                {showFullDescription ? "Show less" : "Show more"}
+              </button>
+            )}
           </div>
+
           <dl className="grid gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">
               <dt className="font-medium text-gray-500">Recommended For</dt>
-              <dd>All skin types.</dd>
+              <dd>{recommendedFor}</dd>
             </div>
 
             <div className="flex flex-col gap-1">
-              <dt
-                className="font-medium text-gray-500 text-lg
-              "
-              >
-                Skin Concern
-              </dt>
-              <dd>Uneven skin tone.</dd>
+              <dt className="text-lg font-medium text-gray-500">Skin Concern</dt>
+              <dd>{skinConcern}</dd>
             </div>
           </dl>
+
           <div>
-            <p className="inline-flex w-fit text-sm whitespace-nowrap bg-secondary px-3 py-1">
-              30ml
+            <p className="inline-flex w-fit whitespace-nowrap bg-secondary px-3 py-1 text-sm">
+              {sizeLabel}
             </p>
           </div>
-          <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center md:justify-between">
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-0">
             <div
               className="flex w-full items-center border md:w-fit"
               aria-label="Quantity selector"
@@ -172,6 +268,7 @@ const ProductView = () => {
                 type="button"
                 className="px-4 py-3"
                 aria-label="Decrease quantity"
+                onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
               >
                 -
               </button>
@@ -180,13 +277,14 @@ const ProductView = () => {
                 className="flex-1 px-4 py-3 text-center md:flex-none"
                 aria-live="polite"
               >
-                1
+                {quantity}
               </span>
 
               <button
                 type="button"
                 className="px-4 py-3"
                 aria-label="Increase quantity"
+                onClick={() => setQuantity((prev) => prev + 1)}
               >
                 +
               </button>
@@ -194,14 +292,13 @@ const ProductView = () => {
 
             <button
               type="button"
-              className="md:flex-1 border px-6 py-3 bg-black text-white"
+              className="border bg-black px-6 py-3 text-white md:flex-1"
             >
               Add to cart
             </button>
           </div>
 
-          {/* ACCORDIAN */}
-          <Accordion />
+          <Accordion sections={accordionSections} />
         </article>
       </section>
     </main>

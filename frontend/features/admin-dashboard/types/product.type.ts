@@ -1,5 +1,9 @@
 import type { Dispatch, FormEventHandler, SetStateAction } from "react";
-import type { ProductFormValues } from "../pages/products/validation/product.validation";
+import type {
+  ProductFormInput,
+  ProductFormValues,
+} from "../pages/products/validation/product.validation";
+import type { ProductRecord } from "~/features/products/types/product.types";
 
 export type ProductImageType = "PRIMARY" | "HOVER" | "GALLERY";
 
@@ -35,10 +39,10 @@ export interface ProductVariant {
   stock: number;
 }
 
-export type Product = ProductFormValues;
+export type Product = ProductRecord;
 export type CreateProductInput = ProductFormValues;
 
-export const initialFormState: ProductFormValues = {
+export const initialFormState: ProductFormInput = {
   name: "",
   slug: "",
   categoryId: "",
@@ -55,8 +59,12 @@ export const initialFormState: ProductFormValues = {
   hoverImage: null,
   galleryImage1: null,
   galleryImage2: null,
-  galleryImage3: null,
-  sections: [],
+  sectionBenefits: "",
+  sectionHowItWorks: "",
+  sectionHowToUse: "",
+  sectionProductSafety: "",
+  sectionSustainability: "",
+  sectionIngredients: "",
 };
 
 export type ProductTableProps = {
@@ -97,8 +105,8 @@ export type ProductModalProps = {
 export type ProductSubmitModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  formState: Product;
-  setFormState: Dispatch<SetStateAction<Product>>;
+  formState: ProductFormInput;
+  setFormState: Dispatch<SetStateAction<ProductFormInput>>;
   onSubmit: FormEventHandler<HTMLFormElement>;
   isPending: boolean;
   isError: boolean;

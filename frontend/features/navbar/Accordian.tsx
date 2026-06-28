@@ -1,6 +1,6 @@
 import { FiMinus, FiPlus } from "react-icons/fi";
 
-const accordionSections = [
+const defaultAccordionSections = [
     {
       id: "1",
       title: "BENEFITS",
@@ -37,7 +37,20 @@ const accordionSections = [
     },
   ];
 
-const Accordion = () => {
+type AccordionSection = {
+  id: string;
+  title: string;
+  content: string;
+};
+
+type AccordionProps = {
+  sections?: AccordionSection[];
+};
+
+const Accordion = ({ sections }: AccordionProps) => {
+  const accordionSections =
+    sections && sections.length > 0 ? sections : defaultAccordionSections;
+
   return (
     <div>
     {accordionSections.map((item) => (

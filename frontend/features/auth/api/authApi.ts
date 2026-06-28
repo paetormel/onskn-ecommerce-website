@@ -13,6 +13,10 @@ export type RegisterPayload = {
   confirmPassword: string;
 };
 
+export type GoogleAuthPayload = {
+  credential: string;
+};
+
 export async function loginRequest(payload: LoginPayload) {
   const response = await api.post(`/auth/login`, payload);
   return response.data;
@@ -24,6 +28,11 @@ export async function logoutRequest() {
 
 export async function registerRequest(payload: RegisterPayload) {
   const response = await api.post(`/auth/register`, payload);
+  return response.data;
+}
+
+export async function googleAuthRequest(payload: GoogleAuthPayload) {
+  const response = await api.post("/auth/google", payload);
   return response.data;
 }
 

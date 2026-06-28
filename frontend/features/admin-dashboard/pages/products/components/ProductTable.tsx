@@ -18,17 +18,15 @@ const ProductTable = ({
           <tr className="border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
             <th className="px-6 py-4">Image</th>
             <th className="px-6 py-4">Name</th>
-            <th className="px-6 py-4">Slug</th>
-            <th className="px-6 py-4">Category ID</th>
-            <th className="px-6 py-4">Base Description</th>
+            <th className="px-6 py-4">Size</th>
+            <th className="px-6 py-4">Price</th>
             <th className="px-6 py-4">Status</th>
-            <th className="px-6 py-4">Created At</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {isLoading && (
             <tr>
-              <td colSpan={7} className="px-6 py-6">
+              <td colSpan={5} className="px-6 py-6">
                 <div className="flex justify-center">
                   <Loading />
                 </div>
@@ -38,7 +36,7 @@ const ProductTable = ({
 
           {isError && !isLoading && (
             <tr>
-              <td colSpan={7} className="px-6 py-6">
+              <td colSpan={5} className="px-6 py-6">
                 <ErrorState message={errorMessage} />
               </td>
             </tr>
@@ -46,7 +44,7 @@ const ProductTable = ({
 
           {!isLoading && !isError && products.length === 0 && (
             <tr>
-              <td colSpan={7} className="px-6 py-6">
+              <td colSpan={5} className="px-6 py-6">
                 <EmptyState
                   title="No products found"
                   message="Add a product or change your search to see results."
@@ -57,7 +55,7 @@ const ProductTable = ({
 
           {!isLoading &&
             !isError &&
-            products.map((product) => (
+            (products ?? []).map((product) => (
               <ProductRow key={product.id} product={product} />
             ))}
         </tbody>

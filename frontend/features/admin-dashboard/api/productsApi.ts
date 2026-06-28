@@ -1,5 +1,8 @@
 import axios from "axios";
-import type { ProductFormValues } from "../pages/products/validation/product.validation";
+import {
+  ACCORDION_SECTION_FIELDS,
+  type ProductFormValues,
+} from "../pages/products/validation/product.validation";
 import { api } from "~/shared/lib/axios";
 
 type CreateProductResponse = {
@@ -9,6 +12,21 @@ type CreateProductResponse = {
     message: string;
   };
 };
+
+function buildSectionsPayload(payload: ProductFormValues) {
+  return ACCORDION_SECTION_FIELDS.flatMap((section) => {
+    const content = payload[section.key]?.trim();
+    if (!content) return [];
+
+    return [
+      {
+        type: section.type,
+        content,
+        order: section.order,
+      },
+    ];
+  });
+}
 
 function buildCreateProductFormData(payload: ProductFormValues): FormData {
   const formData = new FormData();
@@ -31,7 +49,7 @@ function buildCreateProductFormData(payload: ProductFormValues): FormData {
   formData.append("sku", `${payload.slug}-SKU`);
   formData.append("texture", payload.texture);
   formData.append("skin_types", JSON.stringify(payload.skinTypes ?? []));
-  formData.append("sections", JSON.stringify(payload.sections ?? []));
+  formData.append("sections", JSON.stringify(buildSectionsPayload(payload)));
   formData.append("variants", JSON.stringify(variants));
 
   const images: File[] = [];
@@ -51,11 +69,10 @@ function buildCreateProductFormData(payload: ProductFormValues): FormData {
   const galleryImages = [
     payload.galleryImage1,
     payload.galleryImage2,
-    payload.galleryImage3,
   ].filter((file): file is File => file instanceof File);
 
-  if (galleryImages.length !== 3) {
-    throw new Error("All 3 gallery images are required");
+  if (galleryImages.length !== 2) {
+    throw new Error("Both gallery images are required");
   }
 
   images.push(...galleryImages);
@@ -67,20 +84,31 @@ function buildCreateProductFormData(payload: ProductFormValues): FormData {
 function extractErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as
-      | { message?: string; error?: string; errors?: { fieldErrors?: Record<string, string[]>; formErrors?: string[] } }
+      | {
+          message?: string;
+          error?: string;
+          errors?: {
+            fieldErrors?: Record<string, string[]>;
+            formErrors?: string[];
+          };
+        }
       | undefined;
 
-    if (data?.message) return data.message;
+    if (data?.message && data.message !== "Validation failed") {
+      return data.message;
+    }
     if (data?.error) return data.error;
 
     const fieldErrors = data?.errors?.fieldErrors;
     if (fieldErrors) {
-      const firstFieldError = Object.values(fieldErrors).flat()[0];
-      if (firstFieldError) return firstFieldError;
+      const messages = Object.values(fieldErrors).flat();
+      if (messages[0]) return messages[0];
     }
 
     const formErrors = data?.errors?.formErrors;
     if (formErrors?.[0]) return formErrors[0];
+
+    if (data?.message) return data.message;
 
     return error.message;
   }

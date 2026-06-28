@@ -34,5 +34,12 @@ export const loginSchema = z.object({
     .max(72, { error: "Password must no exceed 72 characters" }),
 });
 
+export const googleAuthSchema = z.object({
+  credential: z
+    .string({ error: "credential is required" })
+    .min(1, { error: "credential is required" }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;

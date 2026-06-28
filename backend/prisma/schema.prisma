@@ -39,15 +39,22 @@ enum ProductImageType {
 }
 
 model User {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String   @unique @db.VarChar(255)
-  password  String   @db.Text
-  role      UserRole @default(CUSTOMER)
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName        String    @map("full_name") @db.VarChar(120)
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String?   @map("password_hash") @db.Text
+  provider        String    @default("local") @db.VarChar(20)
+  googleId        String?   @unique @map("google_id") @db.VarChar(255)
+  avatarUrl       String?   @map("avatar_url") @db.Text
+  role            String    @default("customer") @db.VarChar(30)
+  status          String    @default("active") @db.VarChar(30)
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  deletedAt       DateTime? @map("deleted_at")
 
-  orders    Order[]
+  orders          Order[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   @@map("users")
 }

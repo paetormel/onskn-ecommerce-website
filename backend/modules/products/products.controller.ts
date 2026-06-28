@@ -11,6 +11,7 @@ import {
 } from "./schema/product.schema.js";
 import type { ProductCardDto } from "./products.types.js";
 import { toNumber } from "./products.mapper.js";
+import { getUploadedFiles } from "../../middlewares/multer.utils.js";
 
 export const createFullProduct = async (
   req: Request,
@@ -18,7 +19,7 @@ export const createFullProduct = async (
 ): Promise<void> => {
   try {
     const payload = createProductSchema.parse(req.body);
-    const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+    const files = getUploadedFiles(req, "images");
 
     if (files.length === 0) {
       res.status(400).json({
@@ -82,19 +83,23 @@ export const getProducts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const products = await productService.getProducts();
+    const products = (await productService.getProducts()) ?? [];
 
     const data: ProductCardDto[] = products.map((product) => {
-      const primaryImage = product.images.find(
+      const images = product.images ?? [];
+      const variants = product.variants ?? [];
+
+      const primaryImage = images.find(
         (img) => img.type === ProductImageType.PRIMARY
       );
-      const hoverImage = product.images.find(
+      const hoverImage = images.find(
         (img) => img.type === ProductImageType.HOVER
       );
-      const variant = product.variants[0];
+      const variant = variants[0];
 
       return {
         id: product.id,
+        slug: product.slug,
         name: product.name,
         isActive: product.isActive,
         sizeLabel: variant?.sizeLabel,
@@ -125,17 +130,17 @@ export const getProductById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const slug = req.params.slug ?? req.params.id;
 
-    if (!id || Array.isArray(id)) {
+    if (!slug || Array.isArray(slug)) {
       res.status(400).json({
         success: false,
-        message: "Invalid product id",
+        message: "Invalid product slug",
       });
       return;
     }
 
-    const product = await productService.getProductById(id);
+    const product = await productService.getProductById(slug);
 
     if (!product) {
       res.status(404).json({

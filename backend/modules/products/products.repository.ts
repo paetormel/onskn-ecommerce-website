@@ -40,7 +40,7 @@ export const createProduct = async (data: CreateProductInput) => {
       baseDescription: normalized.baseDescription,
       isActive: normalized.isActive,
       variants: {
-        create: normalized.variants.map((variant) => ({
+        create: (normalized.variants ?? []).map((variant) => ({
           sizeLabel: variant.sizeLabel,
           sku: variant.sku,
           price: variant.price,
@@ -49,13 +49,13 @@ export const createProduct = async (data: CreateProductInput) => {
         })),
       },
       images: {
-        create: normalized.images.map((image) => ({
+        create: (normalized.images ?? []).map((image) => ({
           url: image.url,
           type: image.type,
         })),
       },
       sections: {
-        create: normalized.sections.map((section) => ({
+        create: (normalized.sections ?? []).map((section) => ({
           type: section.type,
           title: section.title ?? null,
           content: section.content,
@@ -63,7 +63,7 @@ export const createProduct = async (data: CreateProductInput) => {
         })),
       },
       skinTypes: {
-        create: normalized.skin_types.map((name) => ({
+        create: (normalized.skin_types ?? []).map((name) => ({
           skinType: {
             connectOrCreate: {
               where: { name },
@@ -83,9 +83,9 @@ export const findAllProducts = async (): Promise<ProductListItem[]> => {
   });
 };
 
-export const findProductById = async (id: string) => {
+export const findProductById = async (slug: string) => {
   return prisma.product.findUnique({
-    where: { id },
+    where: { slug },
     include: {
       category: true,
       variants: true,

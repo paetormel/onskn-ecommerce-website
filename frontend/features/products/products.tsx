@@ -55,7 +55,7 @@ export default function Products() {
                 key={product.id}
                 primaryImage={product.primaryImage}
                 hoverImage={product.hoverImage}
-                productId={String(product.id)}
+                productSlug={product.slug}
                 name={product.name}
                 price={product.price}
                 compareAtPrice={product.compareAtPrice}

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  googleAuth,
   login,
   logout,
   meController,
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", login);
+router.post("/google", googleAuth);
 router.post("/logout", authMiddleware, logout);
 router.get("/me", authMiddleware, meController);
 

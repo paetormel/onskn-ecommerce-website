@@ -19,10 +19,12 @@ import {
   FieldLegend,
   FieldSet,
 } from "~/components/ui/field";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   productSchema,
+  ACCORDION_SECTION_FIELDS,
+  type ProductFormInput,
   type ProductFormValues,
 } from "../validation/product.validation";
 import { Input } from "~/components/ui/input";
@@ -33,8 +35,7 @@ type FileFieldName =
   | "primaryImage"
   | "hoverImage"
   | "galleryImage1"
-  | "galleryImage2"
-  | "galleryImage3";
+  | "galleryImage2";
 
 function FileField({
   name,
@@ -44,7 +45,7 @@ function FileField({
 }: {
   name: FileFieldName;
   label: string;
-  control: ReturnType<typeof useForm<ProductFormValues>>["control"];
+  control: Control<ProductFormInput>;
   optional?: boolean;
 }) {
   return (
@@ -76,12 +77,21 @@ function FileField({
 
 const AddProductModal = ({ isOpen, setIsModalOpen }: ProductModalProps) => {
   const createProduct = useCreateProduct();
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const FALLBACK_CATEGORIES = [
+    { id: "170fddb9-a967-4e3b-afef-f0b736250cb5", name: "Combination" },
+    { id: "814a9419-a089-4996-9976-1ebd6650e7f9", name: "Acne + Blemish" },
+  ];
+  
+  const { data: fetchedCategories, isLoading: categoriesLoading } = useCategories();
+  const categories =
+    Array.isArray(fetchedCategories) && fetchedCategories.length > 0
+      ? fetchedCategories
+      : FALLBACK_CATEGORIES;
   const isPending = createProduct.isPending;
   const isError = createProduct.isError;
   const errorMessage = createProduct.error?.message ?? "";
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm<ProductFormInput, unknown, ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialFormState,
   });
@@ -98,8 +108,7 @@ const AddProductModal = ({ isOpen, setIsModalOpen }: ProductModalProps) => {
   const hasRequiredImages =
     !!form.watch("primaryImage") &&
     !!form.watch("galleryImage1") &&
-    !!form.watch("galleryImage2") &&
-    !!form.watch("galleryImage3");
+    !!form.watch("galleryImage2");
 
   return (
     <Dialog
@@ -386,8 +395,8 @@ const AddProductModal = ({ isOpen, setIsModalOpen }: ProductModalProps) => {
             <FieldSet>
               <FieldLegend>Product Images</FieldLegend>
               <FieldDescription>
-                Upload primary, optional hover, and 3 gallery images. Backend
-                accepts up to 5 images total.
+                Upload primary, optional hover, and 2 gallery images. Backend
+                accepts up to 4 images total.
               </FieldDescription>
 
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -404,7 +413,7 @@ const AddProductModal = ({ isOpen, setIsModalOpen }: ProductModalProps) => {
                 />
               </div>
 
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FileField
                   name="galleryImage1"
                   label="Gallery Image 1"
@@ -415,11 +424,41 @@ const AddProductModal = ({ isOpen, setIsModalOpen }: ProductModalProps) => {
                   label="Gallery Image 2"
                   control={form.control}
                 />
-                <FileField
-                  name="galleryImage3"
-                  label="Gallery Image 3"
-                  control={form.control}
-                />
+              </div>
+            </FieldSet>
+
+            <FieldSet>
+              <FieldLegend>Accordion Sections</FieldLegend>
+              <FieldDescription>
+                These sections appear in the product detail accordion.
+              </FieldDescription>
+
+              <div className="mt-4 grid grid-cols-1 gap-4">
+                {ACCORDION_SECTION_FIELDS.map((section) => (
+                  <Controller
+                    key={section.key}
+                    name={section.key}
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={`product-${section.key}`}>
+                          {section.label}
+                        </FieldLabel>
+                        <Textarea
+                          {...field}
+                          id={`product-${section.key}`}
+                          value={field.value ?? ""}
+                          placeholder={`Enter ${section.label.toLowerCase()} content`}
+                          aria-invalid={fieldState.invalid}
+                          className="min-h-24"
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                ))}
               </div>
             </FieldSet>
 

@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.get("/", getProducts);
-router.get("/:id", getProductById);
-router.post("/", upload.array("images", 5), createFullProduct);
+router.get("/:slug", getProductById);
+router.post("/", upload.array("images", 4), createFullProduct);
 
 export default router;

@@ -82,7 +82,7 @@ export const router = createBrowserRouter([
             element: withSuspense(<Products />),
           },
           {
-            path: ":productId",
+            path: ":slug",
             element: withSuspense(<ProductDetails />),
           },
         ],

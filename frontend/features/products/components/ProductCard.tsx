@@ -12,20 +12,20 @@ const SELECT_LABEL = "Select";
 function ProductCard({
   primaryImage,
   hoverImage,
-  productId,
+  productSlug,
   name,
   price,
   compareAtPrice,
   sizeLabel,
 }: ProductCardProps) {
   const navigate = useNavigate();
-  const isClickable = Boolean(productId);
+  const isClickable = Boolean(productSlug);
 
 
   
   const handleCardClick = () => {
-    if (!productId) return;
-    navigate(`/products/${productId}`);
+    if (!productSlug) return;
+    navigate(`/products/${productSlug}`);
   };
 
   const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

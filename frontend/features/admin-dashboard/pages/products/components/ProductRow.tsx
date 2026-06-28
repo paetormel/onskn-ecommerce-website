@@ -2,7 +2,7 @@ import React from "react";
 import type { Product } from "../../../types/product.type";
 
 const ProductRow = ({ product }: { product: Product }) => {
-  const primaryImage = product.images.find((image) => image.isPrimary)?.url ?? product.images[0]?.url ?? "";
+  const primaryImage = product.primaryImage ?? "";
 
   return (
     <tr
@@ -21,9 +21,10 @@ const ProductRow = ({ product }: { product: Product }) => {
         )}
       </td>
       <td className="px-6 py-4 font-semibold">{product.name}</td>
-      <td className="px-6 py-4">{product.slug}</td>
-      <td className="px-6 py-4">{product.categoryId || "-"}</td>
-      <td className="px-6 py-4 max-w-xs truncate">{product.baseDescription}</td>
+      <td className="px-6 py-4">{product.sizeLabel ?? "-"}</td>
+      <td className="px-6 py-4">
+        {product.price != null ? `$${product.price.toFixed(2)}` : "-"}
+      </td>
       <td className="px-6 py-4">
         {product.isActive ? (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -35,7 +36,6 @@ const ProductRow = ({ product }: { product: Product }) => {
           </span>
         )}
       </td>
-      <td className="px-6 py-4">{product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "-"}</td>
     </tr>
   );
 };

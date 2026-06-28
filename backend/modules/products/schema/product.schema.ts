@@ -11,13 +11,14 @@ const jsonArray = <T>(defaultValue: T[] = []) =>
 
     if (typeof value === "string") {
       try {
-        return JSON.parse(value) as unknown;
+        const parsed: unknown = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : defaultValue;
       } catch {
-        return value;
+        return defaultValue;
       }
     }
 
-    return value;
+    return defaultValue;
   }, z.array(z.any())) as z.ZodType<T[]>;
 
 const stringArray = z.preprocess((value) => {

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import "multer";
+import { getUploadedFiles } from "../../middlewares/multer.utils.js";
 import { uploadToCloudinary } from "./upload.service.js";
 import { query } from "../../config/db.js";
 
@@ -16,7 +17,7 @@ export const uploadImages = async (
 ): Promise<void> => {
   try {
     const { product_id } = req.body as { product_id?: string };
-    const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+    const files = getUploadedFiles(req, "images");
 
     if (!product_id) {
       res.status(400).json({

@@ -34,13 +34,7 @@ const ProductContainer = ({
         String(product.name ?? "")
           .toLowerCase()
           .includes(query) ||
-        String(product.slug ?? "")
-          .toLowerCase()
-          .includes(query) ||
-        String(product.categoryId ?? "")
-          .toLowerCase()
-          .includes(query) ||
-        String(product.baseDescription ?? "")
+        String(product.sizeLabel ?? "")
           .toLowerCase()
           .includes(query)
     );
@@ -55,7 +49,7 @@ const ProductContainer = ({
 
           <input
             type="text"
-            placeholder="Search by name, slug, category ID, or description"
+            placeholder="Search by name or size"
             className="mx-2 w-70 bg-transparent outline-none"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
