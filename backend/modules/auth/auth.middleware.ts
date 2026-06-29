@@ -2,6 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 import authService from "./auth.service.js";
 import { verifyAccessToken } from "./auth.token.js";
 
+const isAdminRole = (role: unknown): boolean =>
+  typeof role === "string" && role.toLowerCase() === "admin";
+
 export const requireAuth = (
   req: Request,
   res: Response,
@@ -62,8 +65,34 @@ export const authMiddleware = async (
     req.user = user;
     next();
   } catch {
-    res
+      res
       .status(401)
       .json({ success: false, message: "Invalid or expired token" });
   }
+};
+
+export const requireAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const role = req.user?.role ?? req.auth?.role;
+
+  if (!role) {
+    res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+    return;
+  }
+
+  if (!isAdminRole(role)) {
+    res.status(403).json({
+      success: false,
+      message: "Forbidden",
+    });
+    return;
+  }
+
+  next();
 };

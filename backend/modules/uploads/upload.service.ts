@@ -29,3 +29,7 @@ export const uploadToCloudinary = (
     streamifier.createReadStream(buffer).pipe(stream);
   });
 };
+
+export const removeFromCloudinary = async (publicId: string): Promise<void> => {
+  await cloudinary.uploader.destroy(publicId);
+};

@@ -1,4 +1,4 @@
-import type { TitleProps } from '../types/title.type'
+import type { TitleProps } from "../types/title.type";
 
 const Title = ({title}: TitleProps) => {
   return (

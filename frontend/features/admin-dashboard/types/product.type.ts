@@ -1,43 +1,25 @@
-import type { Dispatch, FormEventHandler, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import type {
   ProductFormInput,
   ProductFormValues,
 } from "../pages/products/validation/product.validation";
-import type { ProductRecord } from "~/features/products/types/product.types";
+import type {
+  ProductImage,
+  ProductImageDraft,
+  ProductRecord,
+  ProductSection,
+  ProductVariant,
+} from "~/features/products/types/product.types";
+import type {
+  DataContainerProps,
+  DataTableProps,
+  FormFieldConfig,
+  ModalFormProps,
+} from "~/shared/types/ui.types";
+import type { RenameKey } from "~/shared/types/utility.types";
 
-export type ProductImageType = "PRIMARY" | "HOVER" | "GALLERY";
-
-export interface ProductImage {
-  id: string;
-  url: string;
-  type: ProductImageType;
-}
-
-export type ProductSectionType =
-  | "DESCRIPTION"
-  | "BENEFITS"
-  | "HOW_IT_WORKS"
-  | "HOW_TO_USE"
-  | "PRODUCT_SAFETY"
-  | "SUSTAINABILITY"
-  | "INGREDIENTS";
-
-export interface ProductSection {
-  id?: string;
-  type: ProductSectionType;
-  title?: string;
-  content: string;
-  order: number;
-}
-
-export interface ProductVariant {
-  id?: string;
-  sizeLabel: string;
-  sku: string;
-  price: number;
-  compareAtPrice?: number | null;
-  stock: number;
-}
+export type { ProductImage, ProductImageDraft, ProductSection, ProductVariant };
+export type { ProductImageType, ProductSectionType } from "~/features/products/types/product.types";
 
 export type Product = ProductRecord;
 export type CreateProductInput = ProductFormValues;
@@ -67,48 +49,24 @@ export const initialFormState: ProductFormInput = {
   sectionIngredients: "",
 };
 
-export type ProductTableProps = {
-  products: Product[];
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string;
-};
+export type ProductTableProps = RenameKey<
+  DataTableProps<Product>,
+  "data",
+  "products"
+>;
 
-export type ProductContainerProps = {
-  products: Product[];
-  isLoading: boolean;
-  isError: boolean;
-  error: unknown;
-};
+export type ProductContainerProps = RenameKey<
+  DataContainerProps<Product>,
+  "data",
+  "products"
+>;
 
-export type ProductFormFieldKey =
-  | "name"
-  | "slug"
-  | "categoryId"
-  | "baseDescription"
-  | "isActive";
-
-export type ProductFormField = {
-  label: string;
-  key: ProductFormFieldKey;
-  placeholder?: string;
-  type?: string;
-  step?: string;
-  required?: boolean;
-};
+export type ProductFormField = FormFieldConfig<ProductFormInput>;
+export type ProductFormFieldKey = keyof ProductFormInput;
 
 export type ProductModalProps = {
   isOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export type ProductSubmitModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  formState: ProductFormInput;
-  setFormState: Dispatch<SetStateAction<ProductFormInput>>;
-  onSubmit: FormEventHandler<HTMLFormElement>;
-  isPending: boolean;
-  isError: boolean;
-  errorMessage: string;
-};
+export type ProductSubmitModalProps = ModalFormProps<ProductFormInput>;

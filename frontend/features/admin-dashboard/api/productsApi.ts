@@ -3,15 +3,13 @@ import {
   ACCORDION_SECTION_FIELDS,
   type ProductFormValues,
 } from "../pages/products/validation/product.validation";
+import type { CategoryOption } from "~/features/products/types/product.types";
+import type {
+  ApiResponse,
+  CreateProductResponse,
+} from "~/shared/types/api.types";
+import { extractApiErrorMessage } from "~/shared/lib/apiError";
 import { api } from "~/shared/lib/axios";
-
-type CreateProductResponse = {
-  success: boolean;
-  data: {
-    productId: string;
-    message: string;
-  };
-};
 
 function buildSectionsPayload(payload: ProductFormValues) {
   return ACCORDION_SECTION_FIELDS.flatMap((section) => {
@@ -81,42 +79,6 @@ function buildCreateProductFormData(payload: ProductFormValues): FormData {
   return formData;
 }
 
-function extractErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as
-      | {
-          message?: string;
-          error?: string;
-          errors?: {
-            fieldErrors?: Record<string, string[]>;
-            formErrors?: string[];
-          };
-        }
-      | undefined;
-
-    if (data?.message && data.message !== "Validation failed") {
-      return data.message;
-    }
-    if (data?.error) return data.error;
-
-    const fieldErrors = data?.errors?.fieldErrors;
-    if (fieldErrors) {
-      const messages = Object.values(fieldErrors).flat();
-      if (messages[0]) return messages[0];
-    }
-
-    const formErrors = data?.errors?.formErrors;
-    if (formErrors?.[0]) return formErrors[0];
-
-    if (data?.message) return data.message;
-
-    return error.message;
-  }
-
-  if (error instanceof Error) return error.message;
-  return "Failed to create product";
-}
-
 export async function createProduct(
   payload: ProductFormValues
 ): Promise<string> {
@@ -130,18 +92,15 @@ export async function createProduct(
 
     return response.data.data.productId;
   } catch (error) {
-    throw new Error(extractErrorMessage(error) || "Failed to create product");
+    throw new Error(
+      extractApiErrorMessage(error, "Failed to create product")
+    );
   }
 }
 
-export type CategoryOption = {
-  id: string;
-  name: string;
-};
+export type { CategoryOption };
 
 export async function fetchCategories(): Promise<CategoryOption[]> {
-  const response = await api.get<{ success: boolean; data: CategoryOption[] }>(
-    "/categories"
-  );
+  const response = await api.get<ApiResponse<CategoryOption[]>>("/categories");
   return response.data.data ?? [];
 }

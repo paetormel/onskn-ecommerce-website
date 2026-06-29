@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 
@@ -19,19 +18,19 @@ const ShoppingBag = ({ onClose }: ShoppingBagProps) => {
         exit={{ x: "100%" }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
         onClick={(e) => e.stopPropagation()}
-        className="ml-auto flex h-dvh w-full flex-col overflow-hidden text-black bg-white lg:w-125"
+        className="ml-auto flex h-dvh pr-10 w-full flex-col overflow-hidden text-black bg-white lg:w-125"
         role="dialog"
         aria-modal="true"
         aria-label="Shopping bag"
       >
-        <div className="text-white">
+        <div className="text-white ">
           <div className="flex items-center font-medium justify-between mx-5 pt-4 pb-9 border-b border-black/50">
             <Link
               to="."
               aria-label="ONSKN Home"
               className="text-md font-jost leading-5 text-black"
             >
-            Your Bag  (0)
+              Your Bag (0)
             </Link>
 
             <button
@@ -44,13 +43,139 @@ const ShoppingBag = ({ onClose }: ShoppingBagProps) => {
             </button>
           </div>
         </div>
+        <div className="overflow-y-auto">
+          <section className="mt-12 mx-5 font-jost">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-4 border-b-2 border-black/50 pb-2">
+                <div className="w-24 h-32 bg-gray-300 shrink-0">
+                  <img src="" alt="" />
+                </div>
 
-        <section className="mt-12 mx-5 font-jost">
-          <p className="font-semibold text-[17px]">
-            Your cart is empty? You skinwill still <br /> look its best.
-          </p>
-          <button className="bg-black text-white flex items-center justify-center w-full mt-10 px-5 py-3">Shop All</button>
-        </section>
+                <div className="flex flex-col flex-1">
+                  <div className="flex justify-between">
+                    <p>
+                      EVEN ONSKEN SERUM - <span>30ml</span>
+                    </p>
+                    <span>$44.00</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <button>-</button>
+                      <span>0</span>
+                      <button>+</button>
+                    </div>
+
+                    <button className="underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4 border-b-2 border-black/50 pb-2">
+                <div className="w-24 h-32 bg-gray-300 shrink-0">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="flex flex-col flex-1">
+                  <div className="flex justify-between">
+                    <p>
+                      EVEN ONSKEN SERUM - <span>30ml</span>
+                    </p>
+                    <span>$44.00</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <button>-</button>
+                      <span>0</span>
+                      <button>+</button>
+                    </div>
+
+                    <button className="underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4 border-b-2 border-black/50 pb-2">
+                <div className="w-24 h-32 bg-gray-300 shrink-0">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="flex flex-col flex-1">
+                  <div className="flex justify-between">
+                    <p>
+                      EVEN ONSKEN SERUM - <span>30ml</span>
+                    </p>
+                    <span>$44.00</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <button>-</button>
+                      <span>0</span>
+                      <button>+</button>
+                    </div>
+
+                    <button className="underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4 border-b-2 border-black/50 pb-2">
+                <div className="w-24 h-32 bg-gray-300 shrink-0">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="flex flex-col flex-1">
+                  <div className="flex justify-between">
+                    <p>
+                      EVEN ONSKEN SERUM - <span>30ml</span>
+                    </p>
+                    <span>$44.00</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <button>-</button>
+                      <span>0</span>
+                      <button>+</button>
+                    </div>
+
+                    <button className="underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4 border-b-2 border-black/50 pb-2">
+                <div className="w-24 h-32 bg-gray-300 shrink-0">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="flex flex-col flex-1">
+                  <div className="flex justify-between">
+                    <p>
+                      EVEN ONSKEN SERUM - <span>30ml</span>
+                    </p>
+                    <span>$44.00</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <button>-</button>
+                      <span>0</span>
+                      <button>+</button>
+                    </div>
+
+                    <button className="underline cursor-pointer">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="font-semibold text-[17px]">
+              Your cart is empty? You skinwill still <br /> look its best.
+            </p>
+            <button className="bg-black text-white flex items-center justify-center w-full mt-10 px-5 py-3">
+              Shop All
+            </button>
+          </section>
+        </div>
       </motion.div>
     </div>
   );

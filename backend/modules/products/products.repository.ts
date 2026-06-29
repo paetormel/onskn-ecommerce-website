@@ -51,6 +51,7 @@ export const createProduct = async (data: CreateProductInput) => {
       images: {
         create: (normalized.images ?? []).map((image) => ({
           url: image.url,
+          publicId: image.publicId ?? null,
           type: image.type,
         })),
       },

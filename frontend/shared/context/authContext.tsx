@@ -1,9 +1,6 @@
 import { createContext } from "react";
 import useUser from "../hooks/useUser";
-import {
- 
-  type LoginPayload,
-} from "~/features/auth/api/authApi";
+import type { LoginPayload } from "~/features/auth/types/auth.type";
 import { useLogin } from "../hooks/useLogin";
 import { useLogout } from "../hooks/useLogout";
 

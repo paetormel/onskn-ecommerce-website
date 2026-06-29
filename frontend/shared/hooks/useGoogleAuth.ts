@@ -1,8 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  googleAuthRequest,
-  type GoogleAuthPayload,
-} from "~/features/auth/api/authApi";
+import { googleAuthRequest } from "~/features/auth/api/authApi";
+import type { GoogleAuthPayload } from "~/features/auth/types/auth.type";
 
 export const useGoogleAuth = () => {
   const queryClient = useQueryClient();

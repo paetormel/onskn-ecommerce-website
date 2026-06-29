@@ -1,21 +1,17 @@
 import { api } from "~/shared/lib/axios";
+import type {
+  AuthMeResponse,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+} from "~/features/auth/types/auth.type";
 
-
-export type LoginPayload = {
-  email: string;
-  password: string;
-};
-
-export type RegisterPayload = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-
-export type GoogleAuthPayload = {
-  credential: string;
-};
+export type {
+  AuthUser,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+} from "~/features/auth/types/auth.type";
 
 export async function loginRequest(payload: LoginPayload) {
   const response = await api.post(`/auth/login`, payload);
@@ -23,7 +19,7 @@ export async function loginRequest(payload: LoginPayload) {
 }
 
 export async function logoutRequest() {
-  return await api.post('/auth/logout')
+  return await api.post("/auth/logout");
 }
 
 export async function registerRequest(payload: RegisterPayload) {
@@ -36,8 +32,7 @@ export async function googleAuthRequest(payload: GoogleAuthPayload) {
   return response.data;
 }
 
-export const authMe = async () => {
-  const response = await api.get("/auth/me");
-
-  return response.data;
-};
+export async function authMe() {
+  const response = await api.get<AuthMeResponse>("/auth/me");
+  return response.data.data;
+}

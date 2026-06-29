@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  PRODUCT_SECTION_TYPES,
+  type ProductSectionType,
+} from "~/features/products/types/product.types";
 
 export const productVariantSchema = z.object({
   id: z.string().optional(),
@@ -11,15 +15,7 @@ export const productVariantSchema = z.object({
 
 export const productSectionSchema = z.object({
   id: z.string().optional(),
-  type: z.enum([
-    "DESCRIPTION",
-    "BENEFITS",
-    "HOW_IT_WORKS",
-    "HOW_TO_USE",
-    "PRODUCT_SAFETY",
-    "SUSTAINABILITY",
-    "INGREDIENTS",
-  ]),
+  type: z.enum(PRODUCT_SECTION_TYPES),
   title: z.string().optional(),
   content: z.string().min(1),
   order: z.number(),
@@ -57,7 +53,12 @@ export const ACCORDION_SECTION_FIELDS = [
     label: "Ingredients",
     order: 5,
   },
-] as const;
+] as const satisfies ReadonlyArray<{
+  key: string;
+  type: ProductSectionType;
+  label: string;
+  order: number;
+}>;
 
 export type AccordionSectionFieldKey =
   (typeof ACCORDION_SECTION_FIELDS)[number]["key"];

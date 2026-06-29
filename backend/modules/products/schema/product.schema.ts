@@ -57,6 +57,7 @@ export const productSectionSchema = z.object({
 
 export const uploadedImageSchema = z.object({
   url: z.string().url(),
+  publicId: z.string().optional(),
   alt_text: z.string().optional(),
   type: z.nativeEnum(ProductImageType),
   display_order: z.number().int().optional(),

@@ -1,20 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { authMe } from "~/features/auth/api/authApi";
+import type { AuthUser } from "~/features/auth/types/auth.type";
 
-interface User{
-    id: number;
-    fullName: string;
-    email: string;
-    role: string;
-    status: boolean;
-}
-
-export  const useUser = () => {
-    return useQuery<User, Error>({
-        queryKey: ["user"],
-        queryFn: authMe,
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
-    })
-} 
+export const useUser = () => {
+  return useQuery<AuthUser, Error>({
+    queryKey: ["user"],
+    queryFn: authMe,
+    staleTime: 1000 * 60 * 5,
+  });
+};
 
 export default useUser;

@@ -42,6 +42,7 @@ export const createFullProduct = async (
 
         return {
           url: uploaded.url,
+          publicId: uploaded.public_id,
           alt_text: file.originalname,
           type,
           display_order: index,

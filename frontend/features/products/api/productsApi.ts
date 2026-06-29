@@ -1,57 +1,11 @@
 import type {
   ProductDetail,
+  ProductDetailApiPayload,
+  ProductDisplayImage,
   ProductRecord,
 } from "~/features/products/types/product.types";
+import type { ApiResponse } from "~/shared/types/api.types";
 import { api } from "~/shared/lib/axios";
-
-type ProductsResponse = {
-  success: boolean;
-  data: ProductRecord[];
-};
-
-type ProductDetailResponse = {
-  success: boolean;
-  data: ProductDetailApiPayload;
-};
-
-type ProductDetailApiPayload = {
-  id: string;
-  name: string;
-  slug: string;
-  texture: string | null;
-  baseDescription: string;
-  isActive: boolean;
-  category: {
-    id: string;
-    name: string;
-  };
-  variants: Array<{
-    id: string;
-    sizeLabel: string;
-    sku: string;
-    price: unknown;
-    compareAtPrice: unknown;
-    stock: number;
-  }>;
-  images: Array<{
-    id: string;
-    url: string;
-    type: ProductDetail["images"][number]["type"];
-  }>;
-  sections: Array<{
-    id: string;
-    type: ProductDetail["sections"][number]["type"];
-    title?: string | null;
-    content: string;
-    order: number;
-  }>;
-  skinTypes: Array<{
-    skinType: {
-      id: string;
-      name: string;
-    };
-  }>;
-};
 
 function toNumber(value: unknown): number {
   const num = Number(value);
@@ -83,27 +37,23 @@ function normalizeProductDetail(payload: ProductDetailApiPayload): ProductDetail
 }
 
 export async function fetchProducts(): Promise<ProductRecord[]> {
-  const response = await api.get<ProductsResponse>(`/products`);
+  const response = await api.get<ApiResponse<ProductRecord[]>>(`/products`);
   return response.data.data ?? [];
 }
 
 export async function fetchProductBySlug(slug: string): Promise<ProductDetail> {
-  const response = await api.get<ProductDetailResponse>(`/products/${slug}`);
+  const response = await api.get<ApiResponse<ProductDetailApiPayload>>(
+    `/products/${slug}`
+  );
   return normalizeProductDetail(response.data.data);
 }
 
 export const fetchProductById = fetchProductBySlug;
 
-export type ProductDisplayImage = {
-  src: string;
-  alt: string;
-  type: ProductDetail["images"][number]["type"];
-};
-
 export function getProductDisplayImages(
   product: ProductDetail
 ): ProductDisplayImage[] {
-  const byType = (type: ProductDetail["images"][number]["type"]) =>
+  const byType = (type: ProductDisplayImage["type"]) =>
     product.images.find((image) => image.type === type)?.url ?? "";
 
   const primary = byType("PRIMARY");

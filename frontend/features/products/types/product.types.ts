@@ -1,3 +1,17 @@
+export const PRODUCT_IMAGE_TYPES = ["PRIMARY", "HOVER", "GALLERY"] as const;
+export type ProductImageType = (typeof PRODUCT_IMAGE_TYPES)[number];
+
+export const PRODUCT_SECTION_TYPES = [
+  "DESCRIPTION",
+  "BENEFITS",
+  "HOW_IT_WORKS",
+  "HOW_TO_USE",
+  "PRODUCT_SAFETY",
+  "SUSTAINABILITY",
+  "INGREDIENTS",
+] as const;
+export type ProductSectionType = (typeof PRODUCT_SECTION_TYPES)[number];
+
 export interface ProductImageProps {
   src: string;
   alt: string;
@@ -25,38 +39,55 @@ export type ProductRecord = {
   hoverImage: string;
 };
 
-export type ProductSectionType =
-  | "DESCRIPTION"
-  | "BENEFITS"
-  | "HOW_IT_WORKS"
-  | "HOW_TO_USE"
-  | "PRODUCT_SAFETY"
-  | "SUSTAINABILITY"
-  | "INGREDIENTS";
-
-export type ProductImageType = "PRIMARY" | "HOVER" | "GALLERY";
-
-export interface ProductDetailImage {
-  id: string;
+export interface ProductImageBase {
   url: string;
   type: ProductImageType;
 }
 
-export interface ProductDetailSection {
+export interface ProductImage extends ProductImageBase {
   id: string;
+}
+
+export interface ProductImageDraft extends ProductImageBase {
+  id?: string;
+}
+
+export interface ProductSectionBase {
   type: ProductSectionType;
-  title?: string | null;
   content: string;
   order: number;
 }
 
-export interface ProductDetailVariant {
+export interface ProductSection extends ProductSectionBase {
+  id?: string;
+  title?: string;
+}
+
+export interface ProductDetailSection extends ProductSectionBase {
   id: string;
+  title?: string | null;
+}
+
+export interface ProductVariantBase {
   sizeLabel: string;
   sku: string;
   price: number;
-  compareAtPrice: number | null;
+  compareAtPrice?: number | null;
   stock: number;
+}
+
+export interface ProductVariant extends ProductVariantBase {
+  id?: string;
+}
+
+export interface ProductDetailVariant extends ProductVariantBase {
+  id: string;
+  compareAtPrice: number | null;
+}
+
+export interface CategoryOption {
+  id: string;
+  name: string;
 }
 
 export interface ProductDetail {
@@ -66,30 +97,32 @@ export interface ProductDetail {
   texture: string | null;
   baseDescription: string;
   isActive: boolean;
-  category: {
-    id: string;
-    name: string;
-  };
+  category: CategoryOption;
   variants: ProductDetailVariant[];
-  images: ProductDetailImage[];
+  images: ProductImage[];
   sections: ProductDetailSection[];
   skinTypes: string[];
 }
 
-export type CreateProductInput = {
-  name: string;
-  slug: string;
-  categoryId: string;
-  baseDescription: string;
-  isActive: boolean;
-  primaryImageFile: File;
-  hoverImageFile?: File | null;
-  sku?: string;
-  description?: string;
-  longDescription?: string;
-  basePrice?: number;
-  compareAtPrice?: number | null;
-  texture?: string;
-  skinTypes?: string;
-  sizeLabel?: string;
+export type ProductDetailApiVariant = Omit<ProductDetailVariant, "price" | "compareAtPrice"> & {
+  price: unknown;
+  compareAtPrice: unknown;
+};
+
+export type ProductDetailApiPayload = Omit<
+  ProductDetail,
+  "variants" | "images" | "sections" | "skinTypes"
+> & {
+  variants: ProductDetailApiVariant[];
+  images: ProductImage[];
+  sections: ProductDetailSection[];
+  skinTypes: Array<{
+    skinType: CategoryOption;
+  }>;
+};
+
+export type ProductDisplayImage = {
+  src: string;
+  alt: string;
+  type: ProductImageType;
 };
