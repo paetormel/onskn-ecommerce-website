@@ -1,25 +1,38 @@
-import axios from "axios";
+import { api } from "~/shared/lib/axios";
+import type {
+  AuthMeResponse,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+} from "~/features/auth/types/auth.type";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
-
-export type LoginPayload = {
-  email: string;
-  password: string;
-};
-
-export type RegisterPayload = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+export type {
+  AuthUser,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+} from "~/features/auth/types/auth.type";
 
 export async function loginRequest(payload: LoginPayload) {
-  const response = await axios.post(`${API_BASE_URL}/v1/auth/login`, payload);
+  const response = await api.post(`/auth/login`, payload);
   return response.data;
 }
 
+export async function logoutRequest() {
+  return await api.post("/auth/logout");
+}
+
 export async function registerRequest(payload: RegisterPayload) {
-  const response = await axios.post(`${API_BASE_URL}/v1/auth/register`, payload);
+  const response = await api.post(`/auth/register`, payload);
   return response.data;
+}
+
+export async function googleAuthRequest(payload: GoogleAuthPayload) {
+  const response = await api.post("/auth/google", payload);
+  return response.data;
+}
+
+export async function authMe() {
+  const response = await api.get<AuthMeResponse>("/auth/me");
+  return response.data.data;
 }

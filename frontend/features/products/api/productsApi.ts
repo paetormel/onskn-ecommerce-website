@@ -1,75 +1,108 @@
-import axios from "axios";
-import type { CreateProductInput, ProductRecord } from "~/features/products/types/product.types";
+import type {
+  ProductDetail,
+  ProductDetailApiPayload,
+  ProductDisplayImage,
+  ProductRecord,
+} from "~/features/products/types/product.types";
+import type { ApiResponse } from "~/shared/types/api.types";
+import { api } from "~/shared/lib/axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+function toNumber(value: unknown): number {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : 0;
+}
 
-type ProductsResponse = {
-  success: boolean;
-  data: ProductRecord[];
-};
-
-type CreateProductResponse = {
-  success: boolean;
-  data: {
-    productId: number;
-    message: string;
+function normalizeProductDetail(payload: ProductDetailApiPayload): ProductDetail {
+  return {
+    id: payload.id,
+    name: payload.name,
+    slug: payload.slug,
+    texture: payload.texture,
+    baseDescription: payload.baseDescription,
+    isActive: payload.isActive,
+    category: payload.category,
+    variants: (payload.variants ?? []).map((variant) => ({
+      id: variant.id,
+      sizeLabel: variant.sizeLabel,
+      sku: variant.sku,
+      price: toNumber(variant.price),
+      compareAtPrice:
+        variant.compareAtPrice != null ? toNumber(variant.compareAtPrice) : null,
+      stock: variant.stock ?? 0,
+    })),
+    images: payload.images ?? [],
+    sections: [...(payload.sections ?? [])].sort((a, b) => a.order - b.order),
+    skinTypes: (payload.skinTypes ?? []).map((item) => item.skinType.name),
   };
-};
+}
 
 export async function fetchProducts(): Promise<ProductRecord[]> {
-  const response = await axios.get<ProductsResponse>(`${API_BASE_URL}/v1/products`);
+  const response = await api.get<ApiResponse<ProductRecord[]>>(`/products`);
   return response.data.data ?? [];
 }
 
-export async function createFullProduct(payload: CreateProductInput): Promise<number> {
-  try {
-    const formData = new FormData();
-    formData.append("name", payload.name);
-    formData.append("sku", payload.sku);
-    formData.append("slug", payload.slug);
-    formData.append("description", payload.description);
-    formData.append("long_description", payload.longDescription);
-    formData.append("base_price", String(payload.basePrice));
-    formData.append("compare_at_price", String(payload.compareAtPrice ?? payload.basePrice));
-    formData.append("texture", payload.texture ?? "");
-    formData.append("skin_types", payload.skinTypes ?? "");
-    formData.append(
-      "variants",
-      JSON.stringify([
-        {
-          size_label: payload.sizeLabel ?? "100ml",
-          sku: `${payload.sku}-STD`,
-          stock_quantity: 20,
-          price_override: null,
-        },
-      ]),
-    );
-    formData.append(
-      "details",
-      JSON.stringify([
-        {
-          section_name: "Overview",
-          content: payload.description,
-          display_order: 0,
-        },
-      ]),
-    );
-    formData.append("images", payload.primaryImageFile);
-    if (payload.hoverImageFile) {
-      formData.append("images", payload.hoverImageFile);
-    }
+export async function fetchProductBySlug(slug: string): Promise<ProductDetail> {
+  const response = await api.get<ApiResponse<ProductDetailApiPayload>>(
+    `/products/${slug}`
+  );
+  return normalizeProductDetail(response.data.data);
+}
 
-    const response = await axios.post<CreateProductResponse>(`${API_BASE_URL}/v1/products`, formData);
-    return response.data.data.productId;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message =
-        (error.response?.data as { message?: string } | undefined)?.message ??
-        (error.response?.data as { error?: string } | undefined)?.error ??
-        error.message;
-      throw new Error(message || "Failed to create product");
-    }
+export const fetchProductById = fetchProductBySlug;
 
-    throw new Error("Failed to create product");
+export function getProductDisplayImages(
+  product: ProductDetail
+): ProductDisplayImage[] {
+  const byType = (type: ProductDisplayImage["type"]) =>
+    product.images.find((image) => image.type === type)?.url ?? "";
+
+  const primary = byType("PRIMARY");
+  const hover = byType("HOVER");
+  const gallery = product.images
+    .filter((image) => image.type === "GALLERY")
+    .map((image) => image.url);
+
+  const images: ProductDisplayImage[] = [];
+
+  if (primary) {
+    images.push({
+      src: primary,
+      alt: `${product.name} primary`,
+      type: "PRIMARY",
+    });
   }
+
+  if (hover) {
+    images.push({
+      src: hover,
+      alt: `${product.name} hover`,
+      type: "HOVER",
+    });
+  }
+
+  gallery.forEach((url, index) => {
+    images.push({
+      src: url,
+      alt: `${product.name} gallery ${index + 1}`,
+      type: "GALLERY",
+    });
+  });
+
+  if (images.length === 0) {
+    return product.images.map((image, index) => ({
+      src: image.url,
+      alt: `${product.name} image ${index + 1}`,
+      type: image.type,
+    }));
+  }
+
+  return images;
+}
+
+export function formatSectionTitle(
+  type: ProductDetail["sections"][number]["type"],
+  title?: string | null
+) {
+  if (title?.trim()) return title;
+  return type.replace(/_/g, " ");
 }

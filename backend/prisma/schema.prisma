@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+   }
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  REFUNDED
+}
+
+enum ProductSectionType {
+  DESCRIPTION
+  BENEFITS
+  HOW_IT_WORKS
+  HOW_TO_USE
+  PRODUCT_SAFETY
+  SUSTAINABILITY
+  INGREDIENTS
+}
+
+enum ProductImageType {
+  PRIMARY
+  HOVER
+  GALLERY
+}
+
+model User {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName        String    @map("full_name") @db.VarChar(120)
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String?   @map("password_hash") @db.Text
+  provider        String    @default("local") @db.VarChar(20)
+  googleId        String?   @unique @map("google_id") @db.VarChar(255)
+  avatarUrl       String?   @map("avatar_url") @db.Text
+  role            String    @default("customer") @db.VarChar(30)
+  status          String    @default("active") @db.VarChar(30)
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  orders          Order[]
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Category {
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name     String    @unique @db.VarChar(120)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(220)
+  
+  categoryId  String   @db.Uuid
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  texture     String?  @db.Text
+
+  baseDescription String @db.Text
+
+  isActive    Boolean  @default(true)
+
+  images      ProductImage[]
+  variants    ProductVariant[]
+  sections    ProductSection[]
+  orderItems  OrderItem[]
+  skinTypes   ProductSkinType[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+
+model SkinType {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String           @unique 
+  products  ProductSkinType[]
+}
+
+model ProductSkinType {
+  productId  String   @db.Uuid
+  skinTypeId String   @db.Uuid
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  skinType   SkinType @relation(fields: [skinTypeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, skinTypeId]) 
+}
+
+model ProductImage {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url       String  @db.Text
+  publicId  String? @map("public_id") @db.VarChar(255)
+
+  type      ProductImageType
+
+  productId String  @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id          String@id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String   @db.Uuid
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sizeLabel        String   @db.VarChar(100) // e.g. 30ml, 50ml
+  sku         String   @unique @db.VarChar(120)
+
+  price       Decimal  @db.Decimal(12, 2)
+  compareAtPrice Decimal? @db.Decimal(12, 2)
+
+  stock       Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductSection {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  type      ProductSectionType
+  title     String? @db.VarChar(150)
+  content   String  @db.Text
+
+  order     Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@map("product_sections")
+}
+
+model Order {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String      @db.Uuid
+
+  status    OrderStatus @default(PENDING)
+  total     Decimal     @db.Decimal(12, 2)
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items     OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  orderId   String  @db.Uuid
+  productId String  @db.Uuid
+  variantId String? @db.Uuid
+
+  quantity  Int
+  price     Decimal @db.Decimal(12, 2)
+
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}

@@ -8,10 +8,32 @@ const MainLayout = lazy(
 const ProductsLayout = lazy(
   () => import("../../shared/components/layouts/productsLayout")
 );
+
+//Landing pages
 const Home = lazy(() => import("../../features/home/home"));
 const About = lazy(() => import("../../features/about/about"));
 const Products = lazy(() => import("../../features/products/products"));
-const AdminDashboard = lazy(() => import("../../features/admin-dashboard/pages/Dashboard"))
+
+//Admin dashboard
+const AdminLayout = lazy(
+  () => import("../../features/admin-dashboard/components/layouts/layout")
+);
+const AdminDashboard = lazy(
+  () => import("../../features/admin-dashboard/pages/dashboard/Dashboard")
+);
+const AdminProducts = lazy(
+  () => import("../../features/admin-dashboard/pages/products/Products")
+);
+const AdminOrders = lazy(
+  () => import("../../features/admin-dashboard/pages/Orders")
+);
+const AdminCustomers = lazy(
+  () => import("../../features/admin-dashboard/pages/Customers")
+);
+const AdminSettings = lazy(
+  () => import("../../features/admin-dashboard/pages/Setting")
+);
+
 const ProductDetails = lazy(
   () => import("../../features/products/components/ProductView")
 );
@@ -60,7 +82,7 @@ export const router = createBrowserRouter([
             element: withSuspense(<Products />),
           },
           {
-            path: ":productId",
+            path: ":slug",
             element: withSuspense(<ProductDetails />),
           },
         ],
@@ -72,8 +94,29 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: withSuspense(<AdminDashboard />),
+    element: withSuspense(<AdminLayout />),
     path: "/admin",
-
+    children: [
+      {
+        index: true,
+        element: withSuspense(<AdminDashboard />),
+      },
+      {
+        path: "/admin/products",
+        element: withSuspense(<AdminProducts />)
+      },
+      {
+        path: "/admin/orders",
+        element: withSuspense(<AdminOrders />)
+      },
+      {
+        path: "/admin/customers",
+        element: withSuspense(<AdminCustomers />)
+      },
+      {
+        path: "/admin/setting",
+        element: withSuspense(<AdminSettings />)
+      }
+    ]
   }
 ]);
